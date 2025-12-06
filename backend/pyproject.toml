@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "airline-reservation-system"
+version = "0.1.0"
+description = "Backend for Airline Reservation System"
+authors = ["Your Name <your.email@example.com>"]
+package-mode = false
+packages = [{ include = "app" }]
+
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.109.0"
+uvicorn = "^0.27.0"
+sqlalchemy = "^2.0.25"
+pymysql = "^1.1.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-multipart = "^0.0.6"
+pydantic = {extras = ["email"], version = "^2.5.3"}
+alembic = "^1.17.2"
+pydantic-settings = "^2.12.0"
+
+# [tool.poetry.group.dev.dependencies]
+# pytest = "^8.0.0"
+bcrypt = "4.0.1"
+
+[tool.poetry.scripts]
+backend = "app.api.v1.main:run"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
