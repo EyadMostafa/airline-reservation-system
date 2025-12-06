@@ -6,7 +6,7 @@ class Booking(Base):
     __tablename__ = "Booking"
     
     booking_id = Column("BookingID", Integer, primary_key=True, index=True)
-    user_id = Column("UserID", Integer, ForeignKey("User.UserID"), nullable=False)
+    user_id = Column("UserID", Integer, ForeignKey("User.UserID", ondelete="CASCADE"), nullable=False)
     booking_date = Column("BookingDate", DateTime, server_default=func.now())
     booking_status = Column("BookingStatus", String(20), default="Confirmed")
     total_cost = Column("TotalCost", DECIMAL(10, 2), nullable=False)

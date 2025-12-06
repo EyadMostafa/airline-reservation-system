@@ -58,7 +58,7 @@ def check_role(required_role: str):
     Usage: Depends(check_role("ADMIN"))
     """
     def role_checker(current_user: User = Depends(get_current_user)):
-        user_roles = [role.role.role_name for role in current_user.roles]
+        user_roles = [role.role_name for role in current_user.roles]
         if required_role not in user_roles:
              raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

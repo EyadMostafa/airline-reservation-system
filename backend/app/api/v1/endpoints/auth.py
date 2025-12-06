@@ -45,7 +45,7 @@ def login_access_token(
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
-    roles = [role.role.role_name for role in user.roles]
+    roles = [role.role_name for role in user.roles]
     
     return {
         "access_token": security.create_access_token(

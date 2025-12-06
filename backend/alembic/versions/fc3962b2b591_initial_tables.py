@@ -1,8 +1,8 @@
 """Initial tables
 
-Revision ID: fd8123522ec6
+Revision ID: fc3962b2b591
 Revises: 
-Create Date: 2025-11-29 18:24:48.429176
+Create Date: 2025-12-07 00:26:53.523117
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'fd8123522ec6'
+revision: str = 'fc3962b2b591'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -27,6 +27,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('AircraftTypeID'),
     sa.UniqueConstraint('TypeName')
     )
+    op.create_index(op.f('ix_AircraftType_AircraftTypeID'), 'AircraftType', ['AircraftTypeID'], unique=False)
     op.create_table('FlightRoute',
     sa.Column('FlightRouteID', sa.Integer(), nullable=False),
     sa.Column('FlightNumber', sa.String(length=10), nullable=False),
@@ -36,12 +37,14 @@ def upgrade() -> None:
     sa.Column('EstimatedDuration', sa.Time(), nullable=False),
     sa.PrimaryKeyConstraint('FlightRouteID')
     )
+    op.create_index(op.f('ix_FlightRoute_FlightRouteID'), 'FlightRoute', ['FlightRouteID'], unique=False)
     op.create_table('Role',
     sa.Column('RoleID', sa.Integer(), nullable=False),
     sa.Column('RoleName', sa.String(length=50), nullable=False),
     sa.PrimaryKeyConstraint('RoleID'),
     sa.UniqueConstraint('RoleName')
     )
+    op.create_index(op.f('ix_Role_RoleID'), 'Role', ['RoleID'], unique=False)
     op.create_table('User',
     sa.Column('UserID', sa.Integer(), nullable=False),
     sa.Column('FirstName', sa.String(length=100), nullable=False),
@@ -51,6 +54,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('UserID')
     )
     op.create_index(op.f('ix_User_Email'), 'User', ['Email'], unique=True)
+    op.create_index(op.f('ix_User_UserID'), 'User', ['UserID'], unique=False)
     op.create_table('Aircraft',
     sa.Column('AircraftID', sa.String(length=20), nullable=False),
     sa.Column('AircraftTypeID', sa.Integer(), nullable=False),
@@ -63,7 +67,7 @@ def upgrade() -> None:
     sa.Column('BookingDate', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('BookingStatus', sa.String(length=20), nullable=True),
     sa.Column('TotalCost', sa.DECIMAL(precision=10, scale=2), nullable=False),
-    sa.ForeignKeyConstraint(['UserID'], ['User.UserID'], ),
+    sa.ForeignKeyConstraint(['UserID'], ['User.UserID'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('BookingID')
     )
     op.create_index(op.f('ix_Booking_BookingID'), 'Booking', ['BookingID'], unique=False)
@@ -76,6 +80,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('SeatID'),
     sa.UniqueConstraint('AircraftTypeID', 'SeatNumber', name='_aircraft_seat_')
     )
+    op.create_index(op.f('ix_Seat_SeatID'), 'Seat', ['SeatID'], unique=False)
     op.create_table('UserPhone',
     sa.Column('PhoneID', sa.Integer(), nullable=False),
     sa.Column('UserID', sa.Integer(), nullable=False),
@@ -83,6 +88,7 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['UserID'], ['User.UserID'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('PhoneID')
     )
+    op.create_index(op.f('ix_UserPhone_PhoneID'), 'UserPhone', ['PhoneID'], unique=False)
     op.create_table('UserRole',
     sa.Column('UserID', sa.Integer(), nullable=False),
     sa.Column('RoleID', sa.Integer(), nullable=False),
@@ -101,6 +107,7 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['FlightRouteID'], ['FlightRoute.FlightRouteID'], ),
     sa.PrimaryKeyConstraint('FlightID')
     )
+    op.create_index(op.f('ix_Flight_FlightID'), 'Flight', ['FlightID'], unique=False)
     op.create_table('Payment',
     sa.Column('PaymentID', sa.Integer(), nullable=False),
     sa.Column('BookingID', sa.Integer(), nullable=False),
@@ -138,16 +145,23 @@ def downgrade() -> None:
     op.drop_table('Ticket')
     op.drop_index(op.f('ix_Payment_PaymentID'), table_name='Payment')
     op.drop_table('Payment')
+    op.drop_index(op.f('ix_Flight_FlightID'), table_name='Flight')
     op.drop_table('Flight')
     op.drop_table('UserRole')
+    op.drop_index(op.f('ix_UserPhone_PhoneID'), table_name='UserPhone')
     op.drop_table('UserPhone')
+    op.drop_index(op.f('ix_Seat_SeatID'), table_name='Seat')
     op.drop_table('Seat')
     op.drop_index(op.f('ix_Booking_BookingID'), table_name='Booking')
     op.drop_table('Booking')
     op.drop_table('Aircraft')
+    op.drop_index(op.f('ix_User_UserID'), table_name='User')
     op.drop_index(op.f('ix_User_Email'), table_name='User')
     op.drop_table('User')
+    op.drop_index(op.f('ix_Role_RoleID'), table_name='Role')
     op.drop_table('Role')
+    op.drop_index(op.f('ix_FlightRoute_FlightRouteID'), table_name='FlightRoute')
     op.drop_table('FlightRoute')
+    op.drop_index(op.f('ix_AircraftType_AircraftTypeID'), table_name='AircraftType')
     op.drop_table('AircraftType')
     # ### end Alembic commands ###
