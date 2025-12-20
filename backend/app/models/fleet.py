@@ -61,6 +61,16 @@ class Flight(Base):
 
     @property
     def duration(self):
-        if self.route:
-            return self.route.estimated_duration
-        return None
+        return self.route.estimated_duration if self.route else None
+
+    @property
+    def flight_number(self):
+        return self.route.flight_number if self.route else None
+    
+    @property
+    def origin(self):
+        return self.route.origin if self.route else None
+
+    @property
+    def destination(self):
+        return self.route.destination if self.route else None

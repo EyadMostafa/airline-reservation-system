@@ -3,7 +3,6 @@ from fastapi import HTTPException
 from app.models.booking import Booking, Payment, Ticket
 from app.models.fleet import Flight, Seat
 from app.schemas.booking import BookingRequest
-from decimal import Decimal
 
 def create_booking_transaction(db: Session, booking_req: BookingRequest):
     flight = db.query(Flight).filter(Flight.flight_id == booking_req.flight_id).first()
@@ -64,3 +63,25 @@ def create_booking_transaction(db: Session, booking_req: BookingRequest):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Booking failed: {str(e)}")
+    
+
+def cancel_booking_transaction(db: Session, booking_id: int):
+    booking = db.query(Booking).filter(Booking.booking_id == booking_id).first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+        
+    if booking.booking_status == "Cancelled":
+         raise HTTPException(status_code=400, detail="Booking is already cancelled")
+
+    try:
+        booking.booking_status = "Cancelled"
+        
+        db.query(Ticket).filter(Ticket.booking_id == booking_id).delete()
+
+        db.commit()
+        db.refresh(booking)
+        return {"message": "Booking cancelled successfully"}
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Cancellation failed: {str(e)}")

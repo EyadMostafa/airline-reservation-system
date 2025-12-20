@@ -1,58 +1,64 @@
+# app/schemas/booking.py
 from pydantic import BaseModel, condecimal
 from datetime import datetime
 from typing import List, Optional
 
-# --- Nested Schemas (Used inside Booking) ---
+# --- Nested Response Components ---
 
-class TravelerRequest(BaseModel):
-    seat_id: int
+class FlightSummary(BaseModel):
+    flight_number: str
+    origin: str
+    destination: str
+    departure_time: datetime
+    
+    class Config:
+        from_attributes = True
+
+class TicketDetail(BaseModel):
+    seat_number: str
     traveler_first_name: str
     traveler_last_name: str
+    
+    class Config:
+        from_attributes = True
 
 class TicketResponse(BaseModel):
     ticket_id: int
     seat_id: int
     traveler_first_name: str
     traveler_last_name: str
-    ticket_price: float # or Decimal
+    ticket_price: float
 
     class Config:
         from_attributes = True
 
-# --- Booking Creation (Input) ---
+# --- Input Schemas ---
+
+class TravelerRequest(BaseModel):
+    seat_id: int
+    traveler_first_name: str
+    traveler_last_name: str
 
 class BookingRequest(BaseModel):
     user_id: int
     flight_id: int
-    
     selected_seats: List[TravelerRequest]
     payment_method: str = "Credit Card"
 
-# --- Booking Update (Input) ---
 class BookingUpdate(BaseModel):
     booking_status: Optional[str] = None
-    # potentially allow updating other fields
 
-# --- Booking Response (Output) ---
+# --- Main Booking Responses ---
 
 class BookingResponse(BaseModel):
     booking_id: int
+    total_cost: float
+    booking_status: str
     user_id: int
     booking_date: datetime
-    booking_status: str
-    total_cost: float
     
-    # can include tickets nested in the response
-    tickets: List[TicketResponse] = []
-
-    class Config:
-        from_attributes = True
-
-class BookingSummary(BaseModel):
-    booking_id: int
-    booking_date: datetime
-    booking_status: str
-    total_cost: float
+    flight: Optional[FlightSummary] = None 
+    tickets: List[TicketDetail] = []
 
     class Config:
         from_attributes = True

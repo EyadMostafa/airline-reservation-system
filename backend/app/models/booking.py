@@ -15,6 +15,12 @@ class Booking(Base):
     payments = relationship("Payment", back_populates="booking")
     tickets = relationship("Ticket", back_populates="booking", cascade="all, delete-orphan")
 
+    @property
+    def flight(self):
+        if self.tickets:
+            return self.tickets[0].flight
+        return None
+
 class Payment(Base):
     __tablename__ = "Payment"
     
@@ -44,3 +50,7 @@ class Ticket(Base):
     seat = relationship("Seat", back_populates="tickets")
     
     __table_args__ = (UniqueConstraint("FlightID", "SeatID", name='_flight_seat_uc'),)
+
+    @property
+    def seat_number(self):
+        return self.seat.seat_number if self.seat else None
