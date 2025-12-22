@@ -12,9 +12,9 @@ router = APIRouter()
 
 @router.get("/", response_model=List[FlightResponse])
 def search_flights(
-    origin: str,
-    destination: str,
-    date: date,
+    origin: str = None,
+    destination: str = None,
+    date: date = None,
     db: Session = Depends(get_db),
 ) -> Any:
     """
