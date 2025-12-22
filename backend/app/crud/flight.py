@@ -17,14 +17,18 @@ class CRUDFlight(CRUDBase[Flight, FlightCreate, FlightStatusUpdate]):
         departure_date: date
     ) -> List[Flight]:
         
-        return (
-            db.query(Flight)
-            .join(FlightRoute)
-            .filter(FlightRoute.origin == origin)
-            .filter(FlightRoute.destination == destination)
-            .filter(func.date(Flight.departure_time) == departure_date)
-            .all()
-        )
+        query = db.query(Flight).join(FlightRoute)
+        
+        if origin is not None:
+            query = query.filter(FlightRoute.origin == origin)
+        
+        if destination is not None:
+            query = query.filter(FlightRoute.destination == destination)
+        
+        if departure_date is not None:
+            query = query.filter(func.date(Flight.departure_time) == departure_date)
+        
+        return query.all()
 
     def get_seat_availability(self, db: Session, flight_id: int):
         flight = db.query(Flight).filter(Flight.flight_id == flight_id).first()
